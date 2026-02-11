@@ -2,7 +2,6 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using Unity.IO.LowLevel.Unsafe;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -95,8 +94,6 @@ public class YapImporter : ScriptedImporter
 	{
 		return ((uint)a << 0) | ((uint)b << 8) | ((uint)c << 16) | ((uint)d << 24);
 	}
-
-
 
 	private T ReadStruct<T>(FileStream fileStream, byte[] buffer) where T : struct
 	{

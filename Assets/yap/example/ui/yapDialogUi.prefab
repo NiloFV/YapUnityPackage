@@ -329,3 +329,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::YapDialogUiController
   m_dialogText: {fileID: 6548991128881833920}
+  m_scene: {fileID: 5280242677873749036, guid: ecc4b51f352c7534498526369ee2840a, type: 3}
