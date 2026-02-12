@@ -1,16 +1,23 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
+public enum YapFileLeafType : int
+{
+	Unkown = 0,
+	Line = 1,
+	SetActor = 2,
+}
+
 [Serializable]
-public struct LineData
+public struct NodeData
 {
 	public string Content;
+	public YapFileLeafType LeafType;
 	public int[] Transitions;
 }
 
 public class YapSceneData : ScriptableObject
 {
 	public string SceneName;
-	public LineData[] Lines;
+	public NodeData[] Lines;
 }

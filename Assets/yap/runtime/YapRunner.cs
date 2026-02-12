@@ -6,28 +6,36 @@ public class YapRunner
 {
 	private YapSceneData m_scene;
 	private int m_currentNodeIndex;
+	private string m_currentActor;
 
-	public void Populate(YapSceneData scene)
+	public void StartYapping(YapSceneData scene, IYapRunnerContext context = null)
 	{
 		m_scene = scene;
 		m_currentNodeIndex = 0;
+		m_currentActor = "";
+		ConsumeCommandNodes(context);
 	}
 
 	public void Advance(IYapRunnerContext context = null)
 	{
 		Assert.IsNotNull(m_scene);
-		LineData line = m_scene.Lines[m_currentNodeIndex];
+		NodeData line = m_scene.Lines[m_currentNodeIndex];
 		if (line.Transitions.Length == 0)
 		{
 			Stop();
 		}
 		m_currentNodeIndex = line.Transitions[0];
+		ConsumeCommandNodes(context);
 	}
 
 	public string GetCurrentLine()
 	{
 		Assert.IsNotNull(m_scene);
 		return m_scene.Lines[m_currentNodeIndex].Content;
+	}
+	public string GetCurrentActor()
+	{
+		return m_currentActor;
 	}
 
 	public void Stop()
@@ -40,5 +48,36 @@ public class YapRunner
 	{
 		Assert.IsNotNull(m_scene);
 		return m_currentNodeIndex >= m_scene.Lines.Length;
+	}
+
+	private void ConsumeCommandNodes(IYapRunnerContext context = null)
+	{
+		Assert.IsNotNull(m_scene);
+		while (m_currentNodeIndex < m_scene.Lines.Length)
+		{
+			NodeData line = m_scene.Lines[m_currentNodeIndex];
+
+			switch (line.LeafType)
+			{
+				case YapFileLeafType.Unkown:					
+				case YapFileLeafType.Line:
+					return;
+				case YapFileLeafType.SetActor:
+					SetCurrentActor(line.Content, context);
+					break;
+			}
+
+			if (line.Transitions.Length == 0)
+			{
+				Stop();
+				break;
+			}
+			m_currentNodeIndex = line.Transitions[0];
+		}
+	}
+
+	private void SetCurrentActor(string actor, IYapRunnerContext context = null)
+	{
+		m_currentActor = actor;
 	}
 }

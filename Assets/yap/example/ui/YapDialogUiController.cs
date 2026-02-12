@@ -7,6 +7,9 @@ public class YapDialogUiController : MonoBehaviour
 	private TextMeshProUGUI m_dialogText;
 
 	[SerializeField]
+	private TextMeshProUGUI m_actorText;
+
+	[SerializeField]
 	private YapSceneData m_scene;
 
 	private YapRunner m_runner = new YapRunner();
@@ -15,9 +18,10 @@ public class YapDialogUiController : MonoBehaviour
 
 	private void Start()
 	{
-		m_runner.Populate(m_scene);
+		m_runner.StartYapping(m_scene);
 
 		SetDialogText(m_runner.GetCurrentLine());
+		SetActorText(m_runner.GetCurrentActor());
 	}
 
 	private void Update()
@@ -32,6 +36,7 @@ public class YapDialogUiController : MonoBehaviour
 				if (!m_runner.IsFinished())
 				{
 					SetDialogText(m_runner.GetCurrentLine());
+					SetActorText(m_runner.GetCurrentActor());
 				}
 				else
 				{
@@ -41,8 +46,12 @@ public class YapDialogUiController : MonoBehaviour
 		}
 	}
 
-	public void SetDialogText(string Text)
+	public void SetDialogText(string text)
 	{
-		m_dialogText.SetText(Text);
+		m_dialogText.SetText(text);
+	}
+	public void SetActorText(string text)
+	{
+		m_actorText.SetText(text);
 	}
 }

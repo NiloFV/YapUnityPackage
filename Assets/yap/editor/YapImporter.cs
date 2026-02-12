@@ -23,10 +23,11 @@ public class YapImporter : ScriptedImporter
 		public int ChildCount;
 	}
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
-	struct YapFileLine
+	struct YapFileLeaf
 	{
 		public int ContentLenght;
 		public int TransitionCount;
+		public YapFileLeafType LeafType;
 	}
 
 
@@ -60,12 +61,13 @@ public class YapImporter : ScriptedImporter
 				scene.name = scene.SceneName;
 				ctx.AddObjectToAsset($"scene_{i}", scene);
 
-				scene.Lines = new LineData[sceneHeader.ChildCount];
+				scene.Lines = new NodeData[sceneHeader.ChildCount];
 				
 				for (int l = 0; l < sceneHeader.ChildCount; l++)
 				{
-					YapFileLine lineHeader = ReadStruct<YapFileLine>(fileHandle, buffer);
-					LineData lineData = new LineData();
+					YapFileLeaf lineHeader = ReadStruct<YapFileLeaf>(fileHandle, buffer);
+					NodeData lineData = new NodeData();
+					lineData.LeafType = lineHeader.LeafType;
 					lineData.Transitions = new int[lineHeader.TransitionCount];
 					for (int t = 0; t < lineHeader.TransitionCount; t++)
 					{
