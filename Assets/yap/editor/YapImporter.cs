@@ -1,6 +1,7 @@
 
 using NUnit.Framework.Constraints;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using UnityEditor.AssetImporters;
@@ -35,10 +36,12 @@ public class YapImporter : ScriptedImporter
 
 	public override void OnImportAsset(AssetImportContext ctx)
 	{
+		Stopwatch sw = new Stopwatch();
+		sw.Start();
 		
 		YapDataContainer container = ScriptableObject.CreateInstance<YapDataContainer>();
 		container.Source = ctx.assetPath;
-
+		
 		ctx.AddObjectToAsset("rootContainer", container);
 		ctx.SetMainObject(container);
 		FileStream fileHandle = null;
@@ -63,7 +66,7 @@ public class YapImporter : ScriptedImporter
 				scene.name = scene.SceneName;
 				ctx.AddObjectToAsset($"scene_{i}", scene);
 
-				scene.Lines = new NodeData[sceneHeader.ChildCount];
+				scene.Nodes = new NodeData[sceneHeader.ChildCount];
 				
 				for (int l = 0; l < sceneHeader.ChildCount; l++)
 				{
@@ -81,13 +84,13 @@ public class YapImporter : ScriptedImporter
 						}
 					}
 					lineData.Content = ReadString(fileHandle, leafHeader.ContentLenght, buffer);
-					scene.Lines[l] = lineData;
+					scene.Nodes[l] = lineData;
 				}				
 			}
 		}
 		catch (Exception e)
 		{
-			Debug.LogException(e);
+			UnityEngine.Debug.LogException(e);
 			throw e;
 		}
 		finally
@@ -97,6 +100,10 @@ public class YapImporter : ScriptedImporter
 				fileHandle.Close();
 			}
 		}
+
+		sw.Stop();
+
+		UnityEngine.Debug.Log($"{ctx.assetPath} imported in {sw.Elapsed.TotalSeconds} seconds");
 	}
 
 	private uint FileHeaderCode(char a, char b, char c, char d)

@@ -19,7 +19,7 @@ public class YapRunner
 	public void Advance(IYapRunnerContext context = null)
 	{
 		Assert.IsNotNull(m_scene);
-		NodeData line = m_scene.Lines[m_currentNodeIndex];
+		NodeData line = m_scene.Nodes[m_currentNodeIndex];
 		if (line.Transitions.Length == 0)
 		{
 			Stop();
@@ -31,7 +31,7 @@ public class YapRunner
 	public string GetCurrentLine()
 	{
 		Assert.IsNotNull(m_scene);
-		return m_scene.Lines[m_currentNodeIndex].Content;
+		return m_scene.Nodes[m_currentNodeIndex].Content;
 	}
 	public string GetCurrentActor()
 	{
@@ -41,38 +41,43 @@ public class YapRunner
 	public void Stop()
 	{
 		Assert.IsNotNull(m_scene);
-		m_currentNodeIndex = m_scene.Lines.Length + 1;
+		m_currentNodeIndex = m_scene.Nodes.Length + 1;
 	}
 
 	public bool IsFinished()
 	{
 		Assert.IsNotNull(m_scene);
-		return m_currentNodeIndex >= m_scene.Lines.Length;
+		return m_currentNodeIndex >= m_scene.Nodes.Length;
 	}
 
 	private void ConsumeCommandNodes(IYapRunnerContext context = null)
 	{
 		Assert.IsNotNull(m_scene);
-		while (m_currentNodeIndex < m_scene.Lines.Length)
+		while (m_currentNodeIndex < m_scene.Nodes.Length)
 		{
-			NodeData line = m_scene.Lines[m_currentNodeIndex];
+			NodeData node = m_scene.Nodes[m_currentNodeIndex];
 
-			switch (line.LeafType)
+			switch (node.LeafType)
 			{
 				case YapFileLeafType.Unkown:
 				case YapFileLeafType.Line:
 					return;
-				case YapFileLeafType.SetActor:
-					SetCurrentActor(line.Content, context);
-					break;				
+				case YapFileLeafType.Command:
+					switch (node.Command)
+					{
+						case CommandType.SetActor:
+							SetCurrentActor(node.Content, context);
+							break;
+					}
+					break;
 			}
 
-			if (line.Transitions.Length == 0)
+			if (node.Transitions.Length == 0)
 			{
 				Stop();
 				break;
 			}
-			m_currentNodeIndex = line.Transitions[0];
+			m_currentNodeIndex = node.Transitions[0];
 		}
 	}
 
