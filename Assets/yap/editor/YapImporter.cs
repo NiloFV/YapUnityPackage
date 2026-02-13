@@ -1,4 +1,5 @@
 
+using NUnit.Framework.Constraints;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -28,17 +29,18 @@ public class YapImporter : ScriptedImporter
 		public int ContentLenght;
 		public int TransitionCount;
 		public YapFileLeafType LeafType;
+		public CommandType Command; 
 	}
 
 
 	public override void OnImportAsset(AssetImportContext ctx)
 	{
+		
 		YapDataContainer container = ScriptableObject.CreateInstance<YapDataContainer>();
 		container.Source = ctx.assetPath;
 
 		ctx.AddObjectToAsset("rootContainer", container);
 		ctx.SetMainObject(container);
-
 		FileStream fileHandle = null;
 		try
 		{
@@ -65,15 +67,20 @@ public class YapImporter : ScriptedImporter
 				
 				for (int l = 0; l < sceneHeader.ChildCount; l++)
 				{
-					YapFileLeaf lineHeader = ReadStruct<YapFileLeaf>(fileHandle, buffer);
+					YapFileLeaf leafHeader = ReadStruct<YapFileLeaf>(fileHandle, buffer);
 					NodeData lineData = new NodeData();
-					lineData.LeafType = lineHeader.LeafType;
-					lineData.Transitions = new int[lineHeader.TransitionCount];
-					for (int t = 0; t < lineHeader.TransitionCount; t++)
+					lineData.LeafType = leafHeader.LeafType;
+					lineData.Command = leafHeader.Command;
+					lineData.Transitions = new int[leafHeader.TransitionCount];
+					for (int t = 0; t < leafHeader.TransitionCount; t++)
 					{
 						lineData.Transitions[t] = ReadInt(fileHandle, buffer);
+						if (lineData.Transitions[t] > 100000)
+						{
+							throw new Exception("busted transitions");
+						}
 					}
-					lineData.Content = ReadString(fileHandle, lineHeader.ContentLenght, buffer);
+					lineData.Content = ReadString(fileHandle, leafHeader.ContentLenght, buffer);
 					scene.Lines[l] = lineData;
 				}				
 			}

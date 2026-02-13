@@ -59,12 +59,12 @@ public class YapRunner
 
 			switch (line.LeafType)
 			{
-				case YapFileLeafType.Unkown:					
+				case YapFileLeafType.Unkown:
 				case YapFileLeafType.Line:
 					return;
 				case YapFileLeafType.SetActor:
 					SetCurrentActor(line.Content, context);
-					break;
+					break;				
 			}
 
 			if (line.Transitions.Length == 0)
